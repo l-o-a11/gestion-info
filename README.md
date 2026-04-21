@@ -12,7 +12,6 @@ Sistema de gestión de información en Python.
 
 ```bash
 git clone https://github.com/l-o-a11/gestion-info.git
-cd gestion-info
 ```
 
 2. (Opcional) Crear un entorno virtual:
