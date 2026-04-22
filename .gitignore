@@ -1,0 +1,21 @@
+# Carpetas de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Datos locales
+*.db
+*.sqlite
+.DS_Store
