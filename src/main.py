@@ -30,12 +30,13 @@ def mostrar_menu():
     print(Fore.GREEN + "1. Crear nuevo registro")
     print(Fore.GREEN + "2. Listar todos los registros")
     print(Fore.GREEN + "3. Buscar registro por ID")
-    print(Fore.GREEN + "4. Ver estadísticas")
-    print(Fore.GREEN + "5. Salir")
+    print(Fore.GREEN + "4. Actualizar registro por ID")
+    print(Fore.GREEN + "5. Eliminar registro por ID")
+    print(Fore.GREEN + "6. Salir")
     print(Fore.CYAN + "=" * 70)
 
 
-def crear_registro_interactivo(gestor):
+def new_register_interactivo(gestor):
     """Permite crear un registro interactivamente"""
     print("\n" + Fore.YELLOW + "--- CREAR NUEVO REGISTRO ---")
     
@@ -45,7 +46,7 @@ def crear_registro_interactivo(gestor):
         email = input("Ingrese email: ").strip()
         edad = input("Ingrese edad: ").strip()
         
-        exito, mensaje, registro = gestor.crear_registro(id_persona, nombre, email, edad)
+        exito, mensaje, registro = gestor.new_register(id_persona, nombre, email, edad)
         
         if exito:
             print(Fore.GREEN + f" {mensaje}")
@@ -55,7 +56,7 @@ def crear_registro_interactivo(gestor):
             print(f"  Edad: {registro['edad']} años")
             
             # Guardar datos en archivo JSON
-            save_data(DATA_FILE, gestor.listar_registros())
+            save_data(DATA_FILE, gestor.list_records())
         else:
             print(Fore.RED + f" {mensaje}")
     
@@ -63,9 +64,9 @@ def crear_registro_interactivo(gestor):
         print(Fore.RED + f" Error inesperado: {e}")
 
 
-def listar_registros_interactivo(gestor):
+def list_records_interactivo(gestor):
     """Muestra todos los registros registrados"""
-    registros = gestor.listar_registros()
+    registros = gestor.list_records()
     
     if not registros:
         print(Fore.YELLOW + "No hay registros registrados aún.")
@@ -79,16 +80,13 @@ def listar_registros_interactivo(gestor):
     for registro in registros:
         print(f"{registro['id']:<5} {registro['nombre']:<20} {registro['email']:<25} {registro['edad']:<5}")
     
-    print("-" * 70)
-    print(Fore.CYAN + f"Total de registros: {gestor.obtener_total_registros()}")
-    print("=" * 70)
 
 
 def buscar_registro_interactivo(gestor):
     """Busca un registro por ID"""
     try:
         id_buscar = int(input("\nIngrese ID a buscar: ").strip())
-        registro = gestor.obtener_registro_por_id(id_buscar)
+        registro = gestor.search_record(id_buscar)
         
         if registro:
             print(Fore.GREEN + " Registro encontrado:")
@@ -104,24 +102,50 @@ def buscar_registro_interactivo(gestor):
     except Exception as e:
         print(Fore.RED + f" Error: {e}")
 
+def update_record_interactivo(gestor):
+    """Actualiza un registro por ID"""
+    try:
+        id_actualizar = int(input("\nIngrese ID a actualizar: ").strip())
+        nombre = input("Ingrese nuevo nombre (dejar vacío para no cambiar): ").strip()
+        email = input("Ingrese nuevo email (dejar vacío para no cambiar): ").strip()
+        edad = input("Ingrese nueva edad (dejar vacío para no cambiar): ").strip()
+        
+        # Solo enviar campos que se desean actualizar
+        nombre = nombre if nombre else None
+        email = email if email else None
+        edad = edad if edad else None
+        
+        exito, mensaje = gestor.update_record(id_actualizar, nombre, email, edad)
+        
+        if exito:
+            print(Fore.GREEN + f" {mensaje}")
+            # Guardar datos en archivo JSON
+            save_data(DATA_FILE, gestor.list_records())
+        else:
+            print(Fore.RED + f" {mensaje}")
+    
+    except ValueError:
+        print(Fore.RED + " El ID debe ser un número")
+    except Exception as e:
+        print(Fore.RED + f" Error: {e}")
 
-def mostrar_estadisticas(gestor):
-    """Muestra estadísticas del sistema"""
-    total = gestor.obtener_total_registros()
-    registros = gestor.listar_registros()
+def delete_record_interactivo(gestor):
+    """Elimina un registro por ID"""
+    try:
+        id_eliminar = int(input("\nIngrese ID a eliminar: ").strip())
+        exito, mensaje = gestor.delete_record(id_eliminar)
+        
+        if exito:
+            print(Fore.GREEN + f" {mensaje}")
+            # Guardar datos en archivo JSON
+            save_data(DATA_FILE, gestor.list_records())
+        else:
+            print(Fore.RED + f" {mensaje}")
     
-    print("" + Fore.CYAN + "ESTADÍSTICAS DEL SISTEMA")
-    print("-" * 70)
-    print(Fore.GREEN + f"Total de registros: {total}")
-    
-    if total > 0:
-        edades = [r['edad'] for r in registros]
-        promedio_edad = sum(edades) / len(edades)
-        print(f"Edad promedio: {promedio_edad:.1f} años")
-        print(f"Edad mínima: {min(edades)} años")
-        print(f"Edad máxima: {max(edades)} años")
-    
-    print("=" * 70)
+    except ValueError:
+        print(Fore.RED + " El ID debe ser un número")
+    except Exception as e:
+        print(Fore.RED + f" Error: {e}")
 
 
 def main():
@@ -149,18 +173,21 @@ def main():
         opcion = input("\nSeleccione una opción (1-5): ").strip()
         
         if opcion == "1":
-            crear_registro_interactivo(gestor)
+            new_register_interactivo(gestor)
         
         elif opcion == "2":
-            listar_registros_interactivo(gestor)
+            list_records_interactivo(gestor)
         
         elif opcion == "3":
             buscar_registro_interactivo(gestor)
-        
+                
         elif opcion == "4":
-            mostrar_estadisticas(gestor)
-        
+            update_record_interactivo(gestor)
+            
         elif opcion == "5":
+            delete_record_interactivo(gestor)
+                
+        elif opcion == "6":
             print(Fore.MAGENTA + Style.BRIGHT + "\n¡Hasta luego!\n")
             break
         

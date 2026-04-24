@@ -10,7 +10,7 @@ class GestorRegistros:
         self.ids_unicos = set()  # Set para IDs únicos
         self.emails_unicos = set()  # Set para emails únicos
     
-    def crear_registro(self, id_persona, nombre, email, edad):
+    def new_register(self, id_persona, nombre, email, edad):
         """
         Crea un nuevo registro si cumple validaciones.
         Retorna (éxito, mensaje, registro)
@@ -62,20 +62,60 @@ class GestorRegistros:
         
         return True, f"Registro creado exitosamente", registro
     
-    def listar_registros(self):
+    def list_records(self):
         """Retorna la lista completa de registros"""
         return self.registros
     
-    def obtener_registro_por_id(self, id_persona):
+    def search_record(self, id_persona):
         """Busca un registro por ID"""
+        resultado = sorted(
+            [r for r in self.registros if r['id'] == id_persona],
+            key=lambda x: x['id'] # Lambda para crear funciones pequeñas y anónimas
+        )
+        return resultado[0] if resultado else None
+    
+    def update_record(self, id_persona, nombre=None, email=None, edad=None):
+        """Actualiza un registro existente por ID"""
         for registro in self.registros:
             if registro['id'] == id_persona:
-                return registro
-        return None
+                # Validar y actualizar nombre
+                if nombre is not None:
+                    valido, resultado = validar_nombre(nombre)
+                    if not valido:
+                        return False, f"Error en nombre: {resultado}"
+                    registro['nombre'] = resultado
+                
+                # Validar y actualizar email
+                if email is not None:
+                    valido, resultado = validar_email(email)
+                    if not valido:
+                        return False, f"Error en email: {resultado}"
+                    if resultado != registro['email'] and resultado in self.emails_unicos:
+                        return False, f"Error: El email {resultado} ya está registrado"
+                    self.emails_unicos.discard(registro['email'])
+                    registro['email'] = resultado
+                    self.emails_unicos.add(resultado)
+                
+                # Validar y actualizar edad
+                if edad is not None:
+                    valido, resultado = validar_edad(edad)
+                    if not valido:
+                        return False, f"Error en edad: {resultado}"
+                    registro['edad'] = resultado
+                
+                return True, "Registro actualizado exitosamente"
+        
+        return False, f"No se encontró registro con ID {id_persona}"
     
-    def obtener_total_registros(self):
-        """Retorna la cantidad total de registros"""
-        return len(self.registros)
+    def delete_record(self, id_persona):
+        """Elimina un registro por ID"""
+        for i, registro in enumerate(self.registros):
+            if registro['id'] == id_persona:
+                self.ids_unicos.discard(registro['id'])
+                self.emails_unicos.discard(registro['email'])
+                del self.registros[i]
+                return True, "Registro eliminado exitosamente"
+        return False, f"No se encontró registro con ID {id_persona}"
     
     def limpiar_registros(self):
         """Limpia todos los registros"""
