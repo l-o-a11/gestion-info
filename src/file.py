@@ -32,10 +32,10 @@ def save_data(filename, data):
         # Guardar datos en JSON
         with open(filename, 'w') as f:
             json.dump(data, f, indent=4)
-        print(f" Datos guardados correctamente en '{filename}'")
+        print(f" Datos guardados correctamente")
     except IOError as e:
         # Error de escritura
-        print(f" Error al guardar en '{filename}': {e}")
+        print(f" Error al guardar: {e}")
     except Exception as e:
         # Otros errores
         print(f" Error inesperado al guardar: {e}")
